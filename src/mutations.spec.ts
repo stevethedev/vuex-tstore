@@ -60,11 +60,11 @@ function testModuleStoreOptions() {
  |
  */
 
-test("wrapMutations can create an action proxy", () => {
+test("wrapMutations can create a mutation proxy", () => {
   const options = testRootStoreOptions();
-  const store = new Store<TestState>(options);
+  const store = new Store(options);
 
-  const mutations = wrapMutations(() => void 0, store, options.mutations, "");
+  const mutations = wrapMutations("", store, options.mutations);
 
   const title = `${Date.now()}`;
   mutations.payload({ title });
@@ -74,15 +74,14 @@ test("wrapMutations can create an action proxy", () => {
   expect(store.state.title).toBe("Hello, world!");
 });
 
-test("wrapMutations can create module action proxies", () => {
+test("wrapMutations can create module mutation proxies", () => {
   const options = testRootStoreOptions();
-  const store = new Store<TestState>(options);
+  const store = new Store(options);
 
   const mutations = wrapMutations(
-    () => void 0,
+    "module",
     store,
-    options.modules.module.mutations,
-    "module"
+    options.modules.module.mutations
   );
 
   const value = Math.random();
@@ -91,4 +90,74 @@ test("wrapMutations can create module action proxies", () => {
 
   mutations.noPayload();
   expect((store.state as any).module.value).toBe(0);
+});
+
+test("wrapMutations creates a after() function on mutations", () => {
+  const options = testRootStoreOptions();
+  const store = new Store(options);
+
+  const mutations = wrapMutations("", store, options.mutations);
+
+  let testMutation = null;
+
+  mutations.payload.listen(({ title }) => (testMutation = title));
+  store.commit({ type: "payload", title: "TEST" });
+  expect(testMutation).toEqual("TEST");
+
+  testMutation = null;
+  store.commit("payload", { title: "TEST" });
+  expect(testMutation).toEqual("TEST");
+
+  testMutation = null;
+  mutations.payload({ title: "TEST" });
+  expect(testMutation).toEqual("TEST");
+
+  mutations.noPayload.listen(() => (testMutation = true));
+
+  testMutation = null;
+  store.commit({ type: "noPayload" });
+  expect(testMutation).toBe(true);
+
+  testMutation = null;
+  store.commit("noPayload");
+  expect(testMutation).toBe(true);
+
+  testMutation = null;
+  mutations.noPayload();
+  expect(testMutation).toBe(true);
+});
+
+test("wrapMutations creates a after() function on module mutations", () => {
+  const options = testRootStoreOptions();
+  const store = new Store(options);
+
+  const mutations = wrapMutations("module", store, options.mutations);
+
+  let testMutation = null;
+
+  mutations.payload.listen(({ title }) => (testMutation = title));
+  store.commit({ type: "module/payload", title: "TEST" });
+  expect(testMutation).toEqual("TEST");
+
+  testMutation = null;
+  store.commit("module/payload", { title: "TEST" });
+  expect(testMutation).toEqual("TEST");
+
+  testMutation = null;
+  mutations.payload({ title: "TEST" });
+  expect(testMutation).toEqual("TEST");
+
+  mutations.noPayload.listen(() => (testMutation = true));
+
+  testMutation = null;
+  store.commit({ type: "module/noPayload" });
+  expect(testMutation).toBe(true);
+
+  testMutation = null;
+  store.commit("module/noPayload");
+  expect(testMutation).toBe(true);
+
+  testMutation = null;
+  mutations.noPayload();
+  expect(testMutation).toBe(true);
 });
