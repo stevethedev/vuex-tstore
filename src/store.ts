@@ -7,18 +7,15 @@ import {
   StoreOptions,
   Module,
   ActionPayload,
-  CommitOptions,
   ModuleTree,
   MutationTree,
   ActionTree,
-  Payload,
   DispatchOptions
 } from "vuex";
 import { WatchOptions } from "vue";
 import { wrapGetters, GetAccessors, WrappedGetters } from "getters";
 import {
   wrapMutations,
-  WrappedMutationHandlers,
   WrappedMutations,
   MutationListenerHandler
 } from "mutations";
@@ -68,27 +65,16 @@ export class Store<
     this.name = name;
     this.store = new VuexStore<TRootState>(options);
 
-    const dispatch = (
-      type: string,
-      payload?: any,
-      options?: DispatchOptions
-    ) => {
-      this.store.dispatch(type, payload, options);
-    };
+    // const dispatch = (
+    //   type: string,
+    //   payload?: any,
+    //   options?: DispatchOptions
+    // ) => {
+    //   this.store.dispatch(type, payload, options);
+    // };
 
-    this.getters = wrapGetters(this.store, options.getters || {}, name);
-    this.commit = Object.assign(
-      (type: string, payload?: any, options?: CommitOptions): void => {
-        return this.store.commit(type, payload, options);
-      },
-      wrapMutations(
-        (mutation: keyof TWrappedMutations, handler) =>
-          this.onMutate(mutation, handler),
-        this.store,
-        options.mutations || {},
-        name
-      )
-    );
+    this.getters = wrapGetters(this.store, options.getters || {}, this.name);
+    this.commit = wrapMutations(this.name, this.store, options.mutations || {});
   }
 
   public replaceState(state: TRootState): void {
