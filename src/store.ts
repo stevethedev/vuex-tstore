@@ -16,6 +16,12 @@ import {
 } from "vuex";
 import { WatchOptions } from "vue";
 import { wrapGetters, GetAccessors, WrappedGetters } from "getters";
+import {
+  wrapMutations,
+  WrappedMutationHandlers,
+  WrappedMutations,
+  MutationListenerHandler
+} from "mutations";
 
 /**
  * Creates a type-aware wrapper around a Vuex store.
@@ -29,9 +35,13 @@ import { wrapGetters, GetAccessors, WrappedGetters } from "getters";
 export class Store<
   TModuleState extends object,
   TRootState extends object,
-  TOptions extends object
+  TOptions extends object,
+  TWrappedMutations = WrappedMutations<
+    TOptions extends { mutations?: infer T } ? T : undefined
+  >
 > implements VuexStore<TRootState> {
   public readonly store: VuexStore<TRootState>;
+  private readonly name: Readonly<string>;
 
   public get state(): TRootState {
     return this.store.state;
@@ -55,24 +65,45 @@ export class Store<
    * @param name The module name to use for this object.
    */
   constructor(options: TOptions & StoreOptions<TRootState>, name: string = "") {
+    this.name = name;
     this.store = new VuexStore<TRootState>(options);
 
+    const dispatch = (
+      type: string,
+      payload?: any,
+      options?: DispatchOptions
+    ) => {
+      this.store.dispatch(type, payload, options);
+    };
+
     this.getters = wrapGetters(this.store, options.getters || {}, name);
+    this.commit = Object.assign(
+      (type: string, payload?: any, options?: CommitOptions): void => {
+        return this.store.commit(type, payload, options);
+      },
+      wrapMutations(
+        (mutation: keyof TWrappedMutations, handler) =>
+          this.onMutate(mutation, handler),
+        this.store,
+        options.mutations || {},
+        name
+      )
+    );
   }
 
   public replaceState(state: TRootState): void {
     return this.store.replaceState(state);
   }
 
-  public dispatch(
-    type: string,
-    payload?: any,
-    options?: DispatchOptions
-  ): Promise<any>;
-  public dispatch<P extends Payload>(
-    payloadWithType: P,
-    options?: DispatchOptions
-  ): Promise<any>;
+  // public readonly dispatch: ((
+  //   type: string,
+  //   payload?: any,
+  //   options?: DispatchOptions
+  // ) => Promise<any>) &
+  //   (<P extends Payload>(
+  //     payloadWithType: P,
+  //     options?: DispatchOptions
+  //   ) => Promise<any>);
   public dispatch(
     type: string,
     payload?: any,
@@ -81,14 +112,10 @@ export class Store<
     return this.store.dispatch(type, payload, options);
   }
 
-  public commit(type: string, payload?: any, options?: CommitOptions): void;
-  public commit<P extends Payload>(
-    payloadWithType: P,
-    options?: DispatchOptions
-  ): void;
-  public commit(type: string, payload: any, options?: CommitOptions): void {
-    return this.store.commit(type, payload, options);
-  }
+  public commit: typeof VuexStore.prototype.commit & TWrappedMutations;
+  // public commit(type: string, payload: any, options?: CommitOptions): void {
+  //   return this.store.commit(type, payload, options);
+  // }
 
   public subscribe<P extends MutationPayload>(
     fn: (mutation: P, state: TRootState) => any
@@ -106,6 +133,29 @@ export class Store<
     options?: WatchOptions
   ): () => void {
     return this.store.watch(getter, cb, options);
+  }
+
+  /**
+   * Adds a synchronous listener to execute after completing a mutation.
+   *
+   * @param mutation The name of the mutation to listen for.
+   * @param handler The handler to execute after the mutation completes.
+   *
+   * @returns A function that may be executed to unsubscribe the listener.
+   */
+  public onMutate(
+    mutation: keyof TWrappedMutations,
+    handler: MutationListenerHandler<typeof mutation>
+  ): () => void {
+    const mutationKey = `${this.name}${
+      this.name ? "/" : ""
+    }${mutation as string}`;
+
+    return this.store.subscribe(({ type, payload }) => {
+      if (type === mutationKey) {
+        (handler as any).call(this, payload);
+      }
+    });
   }
 
   public registerModule<T>(

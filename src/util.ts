@@ -1,4 +1,5 @@
 export type Result<F> = F extends (...args: any[]) => infer R ? R : any;
+export type Partial<O> = { [key in keyof O]?: O[key] };
 
 /**
  * Retrieves the internal Vuex name for a function.
