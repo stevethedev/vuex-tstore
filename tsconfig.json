@@ -1,0 +1,30 @@
+{
+  "include": ["src"],
+  "compilerOptions": {
+    "target": "es2015",
+    "declaration": true,
+    "stripInternal": true,
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "moduleResolution": "node",
+    "baseUrl": "./src",
+    "paths": {
+      "vuex-tstore/*": ["./src/*"]
+    },
+
+    "rootDir": "./",
+
+    "sourceRoot": "./src",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+
+    "experimentalDecorators": true,
+    "esModuleInterop": true
+  }
+}
