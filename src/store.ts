@@ -1,24 +1,20 @@
-import {
-  Store as VuexStore,
-  MutationPayload,
-  SubscribeActionOptions,
-  ModuleOptions,
-  GetterTree,
-  StoreOptions,
-  Module,
-  ActionPayload,
-  ModuleTree,
-  MutationTree,
-  ActionTree,
-  DispatchOptions
-} from "vuex";
 import { WatchOptions } from "vue";
-import { wrapGetters, GetAccessors, WrappedGetters } from "getters";
 import {
-  wrapMutations,
-  WrappedMutations,
-  MutationListenerHandler
-} from "mutations";
+  ActionPayload,
+  ActionTree,
+  GetterTree,
+  Module,
+  ModuleOptions,
+  ModuleTree,
+  MutationPayload,
+  MutationTree,
+  Store as VuexStore,
+  StoreOptions,
+  SubscribeActionOptions
+} from "vuex";
+import { wrapActions, WrappedActions } from "./actions";
+import { GetAccessors, wrapGetters, WrappedGetters } from "./getters";
+import { wrapMutations, WrappedMutations } from "./mutations";
 
 /**
  * Creates a type-aware wrapper around a Vuex store.
@@ -35,14 +31,15 @@ export class Store<
   TOptions extends object,
   TWrappedMutations = WrappedMutations<
     TOptions extends { mutations?: infer T } ? T : undefined
+  >,
+  TWrappedActions = WrappedActions<
+    TOptions extends { actions?: infer T } ? T : undefined
   >
 > implements VuexStore<TRootState> {
-  public readonly store: VuexStore<TRootState>;
-  private readonly name: Readonly<string>;
-
   public get state(): TRootState {
     return this.store.state;
   }
+  public readonly store: VuexStore<TRootState>;
 
   /**
    * Read-only property that holds the getters for this store.
@@ -54,6 +51,11 @@ export class Store<
       TOptions extends { getters?: infer T } ? T : undefined
     >
   >;
+
+  public commit: typeof VuexStore.prototype.commit & TWrappedMutations;
+
+  public dispatch: typeof VuexStore.prototype.dispatch & TWrappedActions;
+  private readonly name: Readonly<string>;
 
   /**
    * Instantiates a new wrapper.
@@ -75,33 +77,12 @@ export class Store<
 
     this.getters = wrapGetters(this.store, options.getters || {}, this.name);
     this.commit = wrapMutations(this.name, this.store, options.mutations || {});
+    this.dispatch = wrapActions(this.name, this.store, options.actions || {});
   }
 
   public replaceState(state: TRootState): void {
     return this.store.replaceState(state);
   }
-
-  // public readonly dispatch: ((
-  //   type: string,
-  //   payload?: any,
-  //   options?: DispatchOptions
-  // ) => Promise<any>) &
-  //   (<P extends Payload>(
-  //     payloadWithType: P,
-  //     options?: DispatchOptions
-  //   ) => Promise<any>);
-  public dispatch(
-    type: string,
-    payload?: any,
-    options?: DispatchOptions
-  ): Promise<any> {
-    return this.store.dispatch(type, payload, options);
-  }
-
-  public commit: typeof VuexStore.prototype.commit & TWrappedMutations;
-  // public commit(type: string, payload: any, options?: CommitOptions): void {
-  //   return this.store.commit(type, payload, options);
-  // }
 
   public subscribe<P extends MutationPayload>(
     fn: (mutation: P, state: TRootState) => any
@@ -121,39 +102,6 @@ export class Store<
     return this.store.watch(getter, cb, options);
   }
 
-  /**
-   * Adds a synchronous listener to execute after completing a mutation.
-   *
-   * @param mutation The name of the mutation to listen for.
-   * @param handler The handler to execute after the mutation completes.
-   *
-   * @returns A function that may be executed to unsubscribe the listener.
-   */
-  public onMutate(
-    mutation: keyof TWrappedMutations,
-    handler: MutationListenerHandler<typeof mutation>
-  ): () => void {
-    const mutationKey = `${this.name}${
-      this.name ? "/" : ""
-    }${mutation as string}`;
-
-    return this.store.subscribe(({ type, payload }) => {
-      if (type === mutationKey) {
-        (handler as any).call(this, payload);
-      }
-    });
-  }
-
-  public registerModule<T>(
-    path: string,
-    module: Module<T, TRootState>,
-    options?: ModuleOptions
-  ): void;
-  public registerModule<T>(
-    path: string[],
-    module: Module<T, TRootState>,
-    options?: ModuleOptions
-  ): void;
   public registerModule<T>(
     path: string[] | string,
     module: Module<T, TRootState>,
@@ -165,8 +113,6 @@ export class Store<
     return this.store.registerModule(path, module, options);
   }
 
-  public unregisterModule(path: string[]): void;
-  public unregisterModule(path: string): void;
   public unregisterModule(path: string | string[]): void {
     if (Array.isArray(path)) {
       return this.store.unregisterModule(path);
