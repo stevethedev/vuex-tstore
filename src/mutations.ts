@@ -1,10 +1,8 @@
 /**
  * Defines how to manage the mutation proxies.
  */
-import { CommitOptions, Store as VuexStore } from "vuex";
+import { Store as VuexStore } from "vuex";
 import { Payload, PayloadReturn, qualifyKey } from "./util";
-
-type Commit<TRootState> = VuexStore<TRootState>["commit"];
 
 /**
  * Extracts an interface for wrapped mutation accessors.
@@ -73,32 +71,26 @@ export function wrapMutations<
   namespace: string,
   store: VuexStore<TRootState>,
   mutations: TMutations
-): Commit<TRootState> & TWrappedMutations {
-  type PartialResult = Commit<TRootState> & Partial<TWrappedMutations>;
+): TWrappedMutations {
+  return Object.entries(mutations).reduce((commit, [key, mutation]) => {
+    // Get the key that Vuex knows this mutation by.
+    const mutationKey = qualifyKey(mutation, namespace);
 
-  return Object.entries(mutations).reduce(
-    (commit, [key, mutation]) => {
-      // Get the key that Vuex knows this mutation by.
-      const mutationKey = qualifyKey(mutation, namespace);
+    // Prepare the function/listeners to give back to the store.
+    type TMutationHandler = WrappedMutationHandler<typeof mutation> &
+      Partial<typeof mutation>;
 
-      // Prepare the function/listeners to give back to the store.
-      type TMutationHandler = WrappedMutationHandler<typeof mutation> &
-        Partial<typeof mutation>;
+    const deferred: TMutationHandler = payload =>
+      store.commit(mutationKey, payload, { root: true });
 
-      const deferred: TMutationHandler = payload =>
-        commit(mutationKey, payload, { root: true });
+    deferred.listen = (handler: MutationListenerHandler<typeof mutation>) =>
+      store.subscribe(({ type, payload }) => {
+        if (type === mutationKey) {
+          (handler as any).call(null, payload);
+        }
+      });
 
-      deferred.listen = (handler: MutationListenerHandler<typeof mutation>) =>
-        store.subscribe(({ type, payload }) => {
-          if (type === mutationKey) {
-            (handler as any).call(null, payload);
-          }
-        });
-
-      // Attach the deferment to the commit function.
-      return Object.defineProperty(commit, key, { value: deferred });
-    },
-    ((type: string, payload?: any, options?: CommitOptions) =>
-      store.commit(type, payload, options)) as PartialResult
-  ) as Commit<TRootState> & TWrappedMutations;
+    // Attach the deferment to the commit function.
+    return Object.defineProperty(commit, key, { value: deferred });
+  }, {}) as TWrappedMutations;
 }

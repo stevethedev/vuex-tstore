@@ -60,7 +60,7 @@ test("wrapGetters can create a getter proxy", () => {
   const options = testRootStoreOptions();
   const store = new Store<TestState>(options);
 
-  const getters = wrapGetters(store, options.getters, "");
+  const getters = wrapGetters("", store, options.getters);
 
   expect(getters.title).toBe(store.state.title);
   expect(getters.title).toBe(store.getters.title);
@@ -73,7 +73,7 @@ test("wrapGetters can create module getter proxies", () => {
   const options = testRootStoreOptions();
   const store = new Store<TestState>(options);
 
-  const getters = wrapGetters(store, options.modules.module.getters, "module");
+  const getters = wrapGetters("module", store, options.modules.module.getters);
 
   expect(getters.value).toBe((store.state as any).module.value);
   expect(getters.value).toBe(store.getters["module/value"]);
