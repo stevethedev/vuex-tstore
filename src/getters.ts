@@ -1,4 +1,4 @@
-import { Store, ActionContext } from "vuex";
+import { ActionContext, Store } from "vuex";
 import { qualifyKey, Result } from "./util";
 
 /**

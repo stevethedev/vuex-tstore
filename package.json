@@ -33,7 +33,10 @@
     "ts-jest": "^24.0.0",
     "tslib": "^1.9.3",
     "tslint": "^5.14.0",
-    "typescript": "^3.3.3333",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.3.3333"
+  },
+  "peerDependencies": {
     "vue": "^2.6.9",
     "vuex": "^3.1.0"
   },

@@ -136,7 +136,7 @@ test("Can access store mutations", () => {
 test("Can accept missing mutation config", () => {
   const options = testRootStoreOptions();
   delete options.mutations;
-  new Store(options);
+  expect(new Store(options).commit).toBeTruthy();
 });
 
 test("Can access store getters", () => {
@@ -217,29 +217,6 @@ test("Can accept missing getter config", () => {
 //     wrapper.store.getters.mvalue
 //   );
 // });
-
-test("Can create commit listeners on store", () => {
-  const options = testRootStoreOptions();
-  const wrapper = new Store(options);
-
-  let onNoPayload = false;
-  let onPayload: any = null;
-
-  wrapper.onMutate("noPayload", () => {
-    onNoPayload = true;
-  });
-  wrapper.onMutate("payload", fnPayload => {
-    onPayload = fnPayload;
-  });
-
-  const payload = { title: "test" };
-
-  wrapper.commit.payload(payload);
-  wrapper.commit.noPayload();
-
-  expect(onPayload).toBe(payload);
-  expect(onNoPayload).toBe(true);
-});
 
 test("Can create commit listeners on mutations", () => {
   const options = testRootStoreOptions();
