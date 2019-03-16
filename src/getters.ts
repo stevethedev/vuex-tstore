@@ -1,5 +1,5 @@
 import { Store, ActionContext } from "vuex";
-import { qualifyKey, Result } from "./util";
+import { qualifyKey, Result, Partial } from "./util";
 
 /**
  * Represents a Vuex Getter Handler.
