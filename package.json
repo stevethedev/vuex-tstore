@@ -1,0 +1,70 @@
+{
+  "name": "vuex-tstore",
+  "version": "1.0.0",
+  "description": "Provides a low-overhead TypeScript wrapper around Vuex that can trigger compilation errors and IntelliSense tips.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevethedev/vuex-tstore.git"
+  },
+  "keywords": [
+    "Vuex",
+    "TypeScript",
+    "Wrapper",
+    "IntelliSense"
+  ],
+  "author": {
+    "name": "Steven Jimenez",
+    "email": "steven@stevethedev.com",
+    "url": "https://www.stevethedev.com/"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stevethedev/vuex-tstore/issues"
+  },
+  "homepage": "https://github.com/stevethedev/vuex-tstore#readme",
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "jest": "^24.5.0",
+    "prettier": "1.16.4",
+    "ts-jest": "^24.0.0",
+    "tslib": "^1.9.3",
+    "tslint": "^5.14.0",
+    "typescript": "^3.3.3333",
+    "vue": "^2.6.9",
+    "vuex": "^3.1.0"
+  },
+  "jest": {
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.ts$",
+    "preset": "ts-jest/presets/js-with-ts",
+    "testEnvironment": "node",
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "modulePaths": [
+      "<rootDir>/src",
+      "<rootDir>/node_modules"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "moduleNameMapper": {
+      "^~/(.*)$": "<rootDir>/src/$1"
+    },
+    "roots": [
+      "<rootDir>/src"
+    ]
+  },
+  "dependencies": {
+    "vuex-typescript": "^3.0.2"
+  }
+}
