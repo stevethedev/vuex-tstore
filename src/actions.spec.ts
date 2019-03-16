@@ -109,17 +109,6 @@ test("wrapActions creates an after() and before() function on root actions", asy
   actions.payload.before(({ title }) => (value = title));
   actions.payload.after(_ => (after = performance.now()));
 
-  when = await actions({ type: "payload", title: "TEST" });
-  expect(value).toEqual("TEST");
-  expect(before).toBeLessThan(when);
-  expect(after).toBeGreaterThan(when);
-
-  before = when = value = after = null;
-  when = await actions("payload", { title: "TEST" });
-  expect(value).toEqual("TEST");
-  expect(before).toBeLessThan(when);
-  expect(after).toBeGreaterThan(when);
-
   before = when = value = after = null;
   when = await actions.payload({ title: "TEST" });
   expect(value).toEqual("TEST");
@@ -141,17 +130,6 @@ test("wrapActions creates an after() and before() function on module actions", a
   actions.payload.before(_ => (before = performance.now()));
   actions.payload.before(({ value: title }) => (value = title));
   actions.payload.after(_ => (after = performance.now()));
-
-  when = await actions({ type: "module/payload", value: 1 });
-  expect(value).toEqual(1);
-  expect(before).toBeLessThan(when);
-  expect(after).toBeGreaterThan(when);
-
-  before = when = value = after = null;
-  when = await actions("module/payload", { value: 1 });
-  expect(value).toEqual(1);
-  expect(before).toBeLessThan(when);
-  expect(after).toBeGreaterThan(when);
 
   before = when = value = after = null;
   when = await actions.payload({ value: 1 });

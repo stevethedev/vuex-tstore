@@ -104,19 +104,13 @@ export function wrapGetters<
   TGetAccessors = GetAccessors<TModuleState, TRootState, TGetters>,
   TWrappedGetters = WrappedGetters<TGetAccessors>
 >(
+  namespace: string,
   store: Store<TRootState>,
-  getters: TGetAccessors,
-  namespace: string
+  options: TGetAccessors
 ): TWrappedGetters {
-  const result = {};
-
-  for (const [key, getter] of Object.entries(getters)) {
-    Object.defineProperty(result, key, {
-      get() {
-        return store.getters[qualifyKey(getter, namespace)];
-      }
+  return Object.entries(options).reduce((getters, [key, getter]) => {
+    return Object.defineProperty(getters, key, {
+      get: () => store.getters[qualifyKey(getter, namespace)]
     });
-  }
-
-  return result as TWrappedGetters;
+  }, {}) as TWrappedGetters;
 }

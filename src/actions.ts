@@ -1,10 +1,8 @@
 /**
  * Defines how to manage action proxies.
  */
-import { DispatchOptions, Store as VuexStore } from "vuex";
+import { Store as VuexStore } from "vuex";
 import { Payload, PayloadReturn, qualifyKey } from "./util";
-
-type Dispatch<TRootState> = VuexStore<TRootState>["dispatch"];
 
 /**
  * Extracts an interface for wrapped action accessors.
@@ -90,41 +88,35 @@ export function wrapActions<
   namespace: string,
   store: VuexStore<TRootState>,
   actions: TActions
-): Dispatch<TRootState> & TWrappedActions {
-  type PartialResult = Dispatch<TRootState> & Partial<TWrappedActions>;
+): TWrappedActions {
+  return Object.entries(actions).reduce((dispatch, [key, action]) => {
+    // Get the key that Vuex knows this action by.
+    const actionKey = qualifyKey(action, namespace);
 
-  return Object.entries(actions).reduce(
-    (dispatch, [key, action]) => {
-      // Get the key that Vuex knows this action by.
-      const actionKey = qualifyKey(action, namespace);
+    // Prepare the function/listeners to give back to the store.
+    type TActionHandler = WrappedActionHandler<typeof action> &
+      Partial<typeof action>;
+    const deferred: TActionHandler = payload =>
+      store.dispatch(actionKey, payload, { root: true });
 
-      // Prepare the function/listeners to give back to the store.
-      type TActionHandler = WrappedActionHandler<typeof action> &
-        Partial<typeof action>;
-      const deferred: TActionHandler = payload =>
-        dispatch(actionKey, payload, { root: true });
-
-      deferred.before = (handler: ActionListenerHandler<typeof action>) =>
-        store.subscribeAction({
-          before: ({ type, payload }) => {
-            if (type === actionKey) {
-              (handler as any).call(null, payload);
-            }
+    deferred.before = (handler: ActionListenerHandler<typeof action>) =>
+      store.subscribeAction({
+        before: ({ type, payload }) => {
+          if (type === actionKey) {
+            (handler as any).call(null, payload);
           }
-        });
-      deferred.after = (handler: ActionListenerHandler<typeof action>) =>
-        store.subscribeAction({
-          after: ({ type, payload }) => {
-            if (type === actionKey) {
-              (handler as any).call(null, payload);
-            }
+        }
+      });
+    deferred.after = (handler: ActionListenerHandler<typeof action>) =>
+      store.subscribeAction({
+        after: ({ type, payload }) => {
+          if (type === actionKey) {
+            (handler as any).call(null, payload);
           }
-        });
+        }
+      });
 
-      // Attach the deferment to the dispatch function.
-      return Object.defineProperty(dispatch, key, { value: deferred });
-    },
-    ((type: string, payload?: any, options?: DispatchOptions) =>
-      store.dispatch(type, payload, options)) as PartialResult
-  ) as Dispatch<TRootState> & TWrappedActions;
+    // Attach the deferment to the dispatch function.
+    return Object.defineProperty(dispatch, key, { value: deferred });
+  }, {}) as TWrappedActions;
 }
