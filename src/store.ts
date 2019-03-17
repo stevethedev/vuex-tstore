@@ -33,6 +33,36 @@ interface Options {
  * which reference the configuration object. This means that this Store wrapper
  * enables IntelliSense (VSCode), Linters, and the TypeScript Compiler to be
  * able to validate that code is actually using the store correctly.
+ *
+ * ```typescript
+ * import Store from 'vuex-tstore';
+ *
+ * const options = {
+ *   state: () => ({ title: "Hello, world!" }),
+ *   getters: {
+ *     title: (state) => state.title
+ *   },
+ *   mutations: {
+ *     resetTitle: (state) => { state.title = ''; },
+ *     setTitle: (state, payload: { title: string }) => { state.title = title; }
+ *   },
+ *   actions: {
+ *     resetTitle: async (context) => context.commit('resetTitle'),
+ *     setTitle: (context, payload: { title: string }) => {
+ *       setTimeout(() => context.commit('setTitle', payload), 1000);
+ *     }
+ *   }
+ * };
+ *
+ * const store = new Store(options);
+ *
+ * store.getters.title; // "Hello, world!"
+ * store.mutations.resetTitle(); // ""
+ * store.mutations.setTitle({ title: "foo" }); // "foo"
+ *
+ * store.actions.resetTitle();
+ * store.actions.setTitle({ title: "bar" });
+ * ```
  */
 export class Store<
   TModuleState,
@@ -62,16 +92,54 @@ export class Store<
    */
   public readonly getters: Readonly<TWrappedGetters>;
 
+  /**
+   * Read-only property that holds references to the store state.
+   */
   public get state(): TRootState {
     return this.store.state;
   }
 
-  public mutations: TWrappedMutations;
+  /**
+   * Read-only property that holds the mutations for this store.
+   *
+   * Every wrapped module can be executed with an attached function, and comes
+   * with two options that may be executed from the wrapper:
+   *
+   * ```typescript
+   * wrapper.mutations.myMutation(payload);
+   * wrapper.mutations.myMutation.listen((payload) => {
+   *   // Do things after the mutation is executed.
+   * });
+   * ```
+   */
+  public readonly mutations: Readonly<TWrappedMutations>;
 
-  public actions: TWrappedActions;
+  /**
+   * Read-only property that holds the actions for this store.
+   *
+   * Every wrapped action can be executed with an attached function, and comes
+   * with two options that may be executed from the wrapper:
+   *
+   * ```typescript
+   * wrapper.actions.myAction(payload);
+   * wrapper.actions.myAction.before((payload) => {
+   *   // Do things before the action is executed.
+   * });
+   * wrapper.actions.myAction.after((payload) => {
+   *   // Do things after the action is executed.
+   * });
+   * ```
+   */
+  public readonly actions: Readonly<TWrappedActions>;
 
+  /**
+   * Read-only property that holds the modules for this store.
+   */
   public readonly modules: TModuleList;
 
+  /**
+   * Read-only reference to the Vuex store.
+   */
   public readonly store: Readonly<VuexStore<TRootState>>;
 
   /**
@@ -94,8 +162,8 @@ export class Store<
     this.store = store;
 
     this.getters = wrapGetters(name, this.store, options.getters || {});
-    this.mutations = wrapMutations(name, this, options.mutations || {});
-    this.actions = wrapActions(name, this, options.actions || {});
+    this.mutations = wrapMutations(name, this.store, options.mutations || {});
+    this.actions = wrapActions(name, this.store, options.actions || {});
     this.modules = wrapModules(name, this.store, options.modules || {});
   }
 

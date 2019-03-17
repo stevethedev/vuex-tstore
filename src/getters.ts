@@ -2,21 +2,6 @@ import { ActionContext, Store } from "vuex";
 import { qualifyKey, Result } from "./util";
 
 /**
- * Represents a Vuex Getter Handler.
- */
-export type GetterHandler<TModuleState, TRootState, TResult> = (
-  state: TModuleState,
-  rootState: TRootState
-) => TResult;
-
-/**
- * Represents a function that gets the value of a Vuex getter.
- */
-export type GetAccessor<TModuleState, TRootState, TResult> = (
-  store: Store<TRootState> | ActionContext<TModuleState, TRootState>
-) => TResult;
-
-/**
  * Provides an interface for accessors from a list of getters.
  *
  * Given an object that matches the type `TGetters` (below), this type
@@ -64,6 +49,13 @@ export type GetAccessors<TModuleState, TRootState, TGetters> = {
 export type WrappedGetters<TGetAccessors> = {
   [key in keyof TGetAccessors]: Result<TGetAccessors[key]>
 };
+
+/**
+ * Represents a function that gets the value of a Vuex getter.
+ */
+type GetAccessor<TModuleState, TRootState, TResult> = (
+  store: Store<TRootState> | ActionContext<TModuleState, TRootState>
+) => TResult;
 
 /**
  * Converts a dictionary of GetAccessors into a WrappedGetters implementation.
