@@ -29,6 +29,12 @@ const testRootStoreOptions = () => ({
     },
     noPayload: (context: TestState) => {
       context.title = "Hello, world!";
+    },
+    optPayload: (
+      context: TestState,
+      { title, suffix = "foo" }: { title: string; suffix?: string }
+    ) => {
+      context.title = `${title} ${suffix || ""}`.trimRight();
     }
   },
   modules: {
@@ -160,4 +166,15 @@ test("wrapMutations creates a after() function on module mutations", () => {
   testMutation = null;
   mutations.noPayload();
   expect(testMutation).toBe(true);
+});
+
+test("wrapMutations can handle optional parameters", () => {
+  const options = testRootStoreOptions();
+  const store = new Store(options);
+
+  const mutations = wrapMutations("", store, options.mutations);
+
+  mutations.optPayload({ title: "foo" });
+
+  expect(store.state.title).toBe("foo foo");
 });
