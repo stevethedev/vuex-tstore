@@ -1,2 +1,7 @@
 node_modules
 coverage
+
+typings/*
+!typings/vue.d.ts
+
+dist
