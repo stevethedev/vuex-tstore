@@ -5,6 +5,8 @@
     "declaration": true,
     "stripInternal": true,
 
+    "strictNullChecks": true,
+
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -15,10 +17,11 @@
     "moduleResolution": "node",
     "baseUrl": "./src",
     "paths": {
-      "vuex-tstore/*": ["./src/*"]
+      "vuex-tstore/*": ["./src/*"],
+      "vuex-tstore": ["./src/index.ts"]
     },
 
-    "rootDir": "./",
+    "rootDir": "./src",
 
     "sourceRoot": "./src",
     "inlineSourceMap": true,
