@@ -3,16 +3,16 @@
  */
 
 import Vue, { ComponentOptions } from "vue";
-import { Store } from "../src/index";
+import { TStore } from "./index";
 
 declare module "vue/types/options" {
   interface ComponentOptions<V extends Vue> {
-    tstore?: Store<any, any, any>;
+    tstore?: TStore<any, any, any>;
   }
 }
 
 declare module "vue/types/vue" {
   interface Vue {
-    $tstore: Store<any, any, any>;
+    $tstore: TStore<any, any, any>;
   }
 }
