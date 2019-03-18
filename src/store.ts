@@ -19,10 +19,14 @@ import { GetAccessors, wrapGetters, WrappedGetters } from "./getters";
 import { wrapMutations, WrappedMutations } from "./mutations";
 
 interface Options {
+  state?: object;
   getters?: object;
   mutations?: object;
   actions?: object;
-  modules?: object;
+  namespaced?: boolean;
+  modules?: {
+    [key: string]: Options;
+  };
 }
 
 /**
@@ -148,7 +152,7 @@ export class Store<
    * @param options The options to use when constructing the Vuex Store.
    * @param name The module name to use for this object.
    */
-  constructor(options: TOptions & StoreOptions<TRootState>);
+  constructor(options?: TOptions & StoreOptions<TRootState>);
   constructor(
     options: TOptions & StoreOptions<TRootState>,
     store: VuexStore<TRootState>,
@@ -159,12 +163,14 @@ export class Store<
     store = new VuexStore(options),
     name = ""
   ) {
+    const opts = options || {};
+
     this.store = store;
 
-    this.getters = wrapGetters(name, this.store, options.getters || {});
-    this.mutations = wrapMutations(name, this.store, options.mutations || {});
-    this.actions = wrapActions(name, this.store, options.actions || {});
-    this.modules = wrapModules(name, this.store, options.modules || {});
+    this.actions = wrapActions(name, this.store, opts.actions || {});
+    this.getters = wrapGetters(name, this.store, opts.getters || {});
+    this.modules = wrapModules(name, this.store, opts.modules || {});
+    this.mutations = wrapMutations(name, this.store, opts.mutations || {});
   }
 
   public commit(type: string, payload?: any, options?: CommitOptions) {
@@ -239,7 +245,7 @@ export class Store<
 function wrapModules<
   TModuleState,
   TRootState,
-  TModules,
+  TModules extends { [key: string]: Options },
   TModuleList = ModuleList<TModuleState, TRootState, TModules>
 >(
   parent: string,
@@ -251,11 +257,17 @@ function wrapModules<
       ? `${parent}${parent === "" ? "" : "/"}${key}`
       : "";
     return Object.defineProperty(mods, key, {
-      value: new Store(options, store, name)
+      value: new Store(
+        options as Options & StoreOptions<TRootState>,
+        store,
+        name
+      )
     });
   }, {}) as TModuleList;
 }
 
-type ModuleList<TModuleState, TRootState, TModules> = {
-  [key in keyof TModules]: Store<TModuleState, TRootState, TModules[key]>
-};
+type ModuleList<
+  TModuleState,
+  TRootState,
+  TModules extends { [key: string]: Options }
+> = { [key in keyof TModules]: Store<TModuleState, TRootState, TModules[key]> };

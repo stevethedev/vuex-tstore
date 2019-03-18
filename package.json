@@ -2,10 +2,13 @@
   "name": "vuex-tstore",
   "version": "1.0.0",
   "description": "Provides a low-overhead TypeScript wrapper around Vuex that can trigger compilation errors and IntelliSense tips.",
-  "main": "dist/es/index.js",
-  "typings": "typings",
+  "main": "dist/cjs/index.js",
+  "module": "dist/es/index.js",
+  "typings": "./typings",
   "scripts": {
+    "build": "npm run build:es && npm run build:cjs && npm run build:typedefs",
     "build:es": "tsc -p ./tsconfig.es.json",
+    "build:cjs": "tsc -p ./tsconfig.cjs.json",
     "build:typedefs": "tsc -p ./tsconfig.types.json",
     "test": "jest --coverage"
   },
@@ -70,8 +73,10 @@
       "<rootDir>/src"
     ]
   },
-  "dependencies": {
-    "vue": "^2.6.9",
-    "vuex": "^3.1.0"
-  }
+  "dependencies": {},
+  "files": [
+    "src",
+    "dist",
+    "typings"
+  ]
 }
