@@ -79,9 +79,21 @@ store.actions.setTitle({ title: "bar" });
 | `store.actions`   | Contains a type-aware proxy to the Vuex Actions. The TStore equivalent to `store.dispatch("action", payload)` is `store.actions.action(payload)`.                  |
 | `store.modules`   | Contains the registered modules on the Vuex Store. For example, a getter called `store.getters["foo/bar"]` would now live under `store.mutations.foo.getters.bar`. |
 
-There are also some new shorthand for registering event-handlers:
+## Event Listeners
+
+There are some new shorthand for registering event-handlers in this library.
+
+### Mutation Listeners
 
 ```typescript
 // call `unsub()` to remove the listener from the store.
 const unsub = store.mutations.setTitle.listen(({ title }) => { alert(title); });
 ```
+
+### Action Listeners
+
+```typescript
+const unsub_1 = store.actions.setTitle.before(({ title }) => console.log(`Updating title to ${title}`));
+const unsub_2 = store.actions.setTitle.after(({ title }) => console.log(`Finished updating title to ${title}`));
+```
+
