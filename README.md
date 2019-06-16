@@ -45,7 +45,7 @@ const options = {
   },
   mutations: {
     resetTitle: (state: State) => { state.title = ''; },
-    setTitle: (state: State, payload: { title: string }) => { state.title = title; }
+    setTitle: (state: State, payload: { title: string }) => { state.title = payload.title; }
   },
   actions: {
     resetTitle: async (context: Context) => context.commit('resetTitle'),
