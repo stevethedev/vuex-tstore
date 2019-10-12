@@ -1,9 +1,14 @@
-import Vue from "vue";
+import Vue, { ComponentOptions } from "vue";
 import { Store } from "./store";
 
 export { Store as TStore };
 
 let installedVue: Vue | null = null;
+
+export interface TComponentOptions<V extends Vue, M, R, O>
+  extends ComponentOptions<V> {
+  tstore?: Store<M, R, O>;
+}
 
 export function install(vue: any) {
   if (installedVue && vue === installedVue) {
@@ -24,9 +29,9 @@ function applyMixin(vue: any) {
     vue.mixin({ beforeCreate: tstoreInit });
   } else {
     const _init = vue.prototype._init;
-    vue.prototype._init = function(options = {}) {
-      (options as any).init = (options as any).init
-        ? [tstoreInit].concat((options as any).init)
+    vue.prototype._init = function(options: any = {}) {
+      options.init = options.init
+        ? [tstoreInit].concat(options.init)
         : tstoreInit;
       _init.call(this, options);
     };

@@ -63,8 +63,7 @@ type ActionListenerHandler<TAction> = TAction extends (store: any) => any
  *
  * ```typescript
  * import { Store } from 'vuex';
- * import { getStoreAccessors } from 'vuex-typescript';
- * const { dispatch } = getStoreAccessors('');
+ * import { wrapActions } from 'vuex-tstore';
  *
  * const options = {
  *   actions: {

@@ -18,7 +18,7 @@ import { wrapActions, WrappedActions } from "./actions";
 import { GetAccessors, wrapGetters, WrappedGetters } from "./getters";
 import { wrapMutations, WrappedMutations } from "./mutations";
 
-interface Options {
+export interface Options {
   state?: object;
   getters?: object;
   mutations?: object;
@@ -150,6 +150,7 @@ export class Store<
    * Instantiates a new wrapper.
    *
    * @param options The options to use when constructing the Vuex Store.
+   * @param store A pre-existing store to wrap.
    * @param name The module name to use for this object.
    */
   constructor(options?: TOptions & StoreOptions<TRootState>);
