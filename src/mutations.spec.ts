@@ -34,7 +34,7 @@ const testRootStoreOptions = () => ({
       context: TestState,
       { title, suffix = "foo" }: { title: string; suffix?: string }
     ) => {
-      context.title = `${title} ${suffix || ""}`.trimRight();
+      context.title = `${title} ${suffix || ""}`.replace(/^(.*)\s*$/, "$1");
     }
   },
   modules: {
