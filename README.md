@@ -69,6 +69,23 @@ store.actions.resetTitle();
 store.actions.setTitle({ title: "bar" });
 ```
 
+### Project Typedef
+
+Since larger projects tend to be spread out more than what I was doing in the
+tests, you will probably need to overwrite the default project typedef values.
+This is the format I've used in other projects to get my IDE to recognize the
+store:
+
+```typescript
+import StoreRoot from 'path/to/my/store';
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    $tstore: StoreRoot;
+  }
+}
+```
+
 ## Store Structure
 
 | Object            | Description                                                                                                                                                        |
