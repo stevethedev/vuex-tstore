@@ -1,4 +1,3 @@
-import { performance } from "perf_hooks";
 import Vue from "vue";
 import Vuex, { ActionContext, Store } from "vuex";
 import { wrapActions } from "./actions";
@@ -31,11 +30,11 @@ const testModuleStoreOptions = () => ({
   actions: {
     payload: async (context: TestModuleContext, payload: { value: number }) => {
       context.state.value = payload.value;
-      return performance.now();
+      return Number(process.hrtime().join("."));
     },
     noPayload: async (context: TestModuleContext) => {
       context.state.value = 0;
-      return performance.now();
+      return Number(process.hrtime().join("."));
     }
   }
 });
@@ -45,11 +44,11 @@ const testRootStoreOptions = () => ({
   actions: {
     payload: async (context: TestRootContext, payload: { title: string }) => {
       context.state.title = payload.title;
-      return performance.now();
+      return Number(process.hrtime().join("."));
     },
     noPayload: async (context: TestRootContext) => {
       context.state.title = "Hello, world!";
-      return performance.now();
+      return Number(process.hrtime().join("."));
     }
   },
   modules: {
@@ -105,9 +104,9 @@ test("wrapActions creates an after() and before() function on root actions", asy
   let value = null;
   let after = null;
 
-  actions.payload.before(_ => (before = performance.now()));
+  actions.payload.before(_ => (before = Number(process.hrtime().join("."))));
   actions.payload.before(({ title }) => (value = title));
-  actions.payload.after(_ => (after = performance.now()));
+  actions.payload.after(_ => (after = Number(process.hrtime().join("."))));
 
   before = when = value = after = null;
   when = await actions.payload({ title: "TEST" });
@@ -127,9 +126,9 @@ test("wrapActions creates an after() and before() function on module actions", a
   let value = null;
   let after = null;
 
-  actions.payload.before(_ => (before = performance.now()));
+  actions.payload.before(_ => (before = Number(process.hrtime().join("."))));
   actions.payload.before(({ value: title }) => (value = title));
-  actions.payload.after(_ => (after = performance.now()));
+  actions.payload.after(_ => (after = Number(process.hrtime().join("."))));
 
   before = when = value = after = null;
   when = await actions.payload({ value: 1 });
