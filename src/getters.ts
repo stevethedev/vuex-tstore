@@ -27,7 +27,7 @@ export type GetAccessors<TModuleState, TRootState, TGetters> = {
     TModuleState,
     TRootState,
     Result<TGetters[key]>
-  >
+  >;
 };
 
 /**
@@ -47,7 +47,7 @@ export type GetAccessors<TModuleState, TRootState, TGetters> = {
  * ```
  */
 export type WrappedGetters<TGetAccessors> = {
-  [key in keyof TGetAccessors]: Result<TGetAccessors[key]>
+  [key in keyof TGetAccessors]: Result<TGetAccessors[key]>;
 };
 
 /**
@@ -72,8 +72,7 @@ type GetAccessor<TModuleState, TRootState, TResult> = (
  *
  * ```typescript
  * import { Store } from 'vuex';
- * import { getStoreAccessors } from 'vuex-typescript';
- * const { read } = getStoreAccessors('');
+ * import { wrapGetters } from 'vuex-tstore';
  *
  * const options = {
  *   getters: {
