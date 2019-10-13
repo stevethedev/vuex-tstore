@@ -1,14 +1,9 @@
-import Vue, { ComponentOptions } from "vue";
+import Vue from "vue";
 import { Store } from "./store";
 
 export { Store as TStore };
 
 let installedVue: Vue | null = null;
-
-export interface TComponentOptions<V extends Vue, M, R, O>
-  extends ComponentOptions<V> {
-  tstore?: Store<M, R, O>;
-}
 
 export function install(vue: any) {
   if (installedVue && vue === installedVue) {
