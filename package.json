@@ -1,6 +1,6 @@
 {
   "name": "vuex-tstore",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Provides a low-overhead TypeScript wrapper around Vuex that can trigger compilation errors and IntelliSense tips.",
   "main": "dist/cjs/index.js",
   "module": "dist/es/index.js",
