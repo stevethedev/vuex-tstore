@@ -113,4 +113,3 @@ const unsub = store.mutations.setTitle.listen(({ title }) => { alert(title); });
 const unsub_1 = store.actions.setTitle.before(({ title }) => console.log(`Updating title to ${title}`));
 const unsub_2 = store.actions.setTitle.after(({ title }) => console.log(`Finished updating title to ${title}`));
 ```
-
