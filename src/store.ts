@@ -12,7 +12,7 @@ import {
   MutationTree,
   Store as VuexStore,
   StoreOptions,
-  SubscribeActionOptions
+  SubscribeActionOptions,
 } from "vuex";
 import { wrapActions, WrappedActions } from "./actions";
 import { GetAccessors, wrapGetters, WrappedGetters } from "./getters";
@@ -101,7 +101,7 @@ export class Store<
    * Read-only property that holds references to the store state.
    */
 
-  public readonly state: Readonly<TState<TOptions['state']>>;
+  public readonly state: Readonly<TState<TOptions["state"]>>;
 
   /**
    * Read-only property that holds the mutations for this store.
@@ -209,10 +209,6 @@ export class Store<
     return this.store.hotUpdate(options);
   }
 
-  public replaceState(state: TRootState): void {
-    return this.replaceState(state);
-  }
-
   public subscribe<P extends MutationPayload>(
     fn: (mutation: P, state: TRootState) => any
   ): () => void {
@@ -262,7 +258,7 @@ function wrapModules<
         options as Options & StoreOptions<TRootState>,
         store,
         name
-      )
+      ),
     });
   }, {}) as TModuleList;
 }
