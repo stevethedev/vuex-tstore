@@ -51,6 +51,12 @@ const testModuleStoreOptions = () => ({
     mnoPayload: (context: TestModule) => {
       context.value = 0;
     }
+  },
+  modules: {
+    submodule: {
+      namespaced: true,
+      state() { return { foo: "bar" }; }
+    }
   }
 });
 
@@ -199,6 +205,19 @@ test("Can access module getters", () => {
 
   const value = Math.random();
   expect(wrapper.modules.module.getters.mupdate(value)).toBe(value);
+});
+
+test("Can access module state", () => {
+  const options = testRootStoreOptions();
+  const wrapper = new Store(options);
+  expect(wrapper.modules.module.state.value).toBe(0);
+
+  const value = Math.random();
+  wrapper.modules.module.getters.mupdate(value);
+
+  expect(wrapper.modules.module.state.value).toBe(value);
+
+  expect(wrapper.modules.module.modules.submodule.state.foo).toBe("bar");
 });
 
 test("Can access non-namespaced modules", () => {

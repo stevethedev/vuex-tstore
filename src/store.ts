@@ -12,11 +12,12 @@ import {
   MutationTree,
   Store as VuexStore,
   StoreOptions,
-  SubscribeActionOptions
+  SubscribeActionOptions,
 } from "vuex";
 import { wrapActions, WrappedActions } from "./actions";
 import { GetAccessors, wrapGetters, WrappedGetters } from "./getters";
 import { wrapMutations, WrappedMutations } from "./mutations";
+import { wrapState, TState } from "./state";
 
 export interface Options {
   state?: object;
@@ -90,7 +91,7 @@ export class Store<
     TRootState,
     TOptions extends { modules?: infer T } ? T : undefined
   >
-> implements VuexStore<TRootState> {
+> {
   /**
    * Read-only property that holds the getters for this store.
    */
@@ -99,9 +100,8 @@ export class Store<
   /**
    * Read-only property that holds references to the store state.
    */
-  public get state(): TRootState {
-    return this.store.state;
-  }
+
+  public readonly state: Readonly<TState<TOptions["state"]>>;
 
   /**
    * Read-only property that holds the mutations for this store.
@@ -167,10 +167,10 @@ export class Store<
     const opts = options || {};
 
     this.store = store;
-
     this.actions = wrapActions(name, this.store, opts.actions || {});
     this.getters = wrapGetters(name, this.store, opts.getters || {});
     this.modules = wrapModules(name, this.store, opts.modules || {});
+    this.state = wrapState(name, this.store);
     this.mutations = wrapMutations(name, this.store, opts.mutations || {});
   }
 
@@ -207,10 +207,6 @@ export class Store<
     modules?: ModuleTree<TRootState>;
   }): void {
     return this.store.hotUpdate(options);
-  }
-
-  public replaceState(state: TRootState): void {
-    return this.replaceState(state);
   }
 
   public subscribe<P extends MutationPayload>(
@@ -262,7 +258,7 @@ function wrapModules<
         options as Options & StoreOptions<TRootState>,
         store,
         name
-      )
+      ),
     });
   }, {}) as TModuleList;
 }
