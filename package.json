@@ -33,17 +33,17 @@
   },
   "homepage": "https://github.com/stevethedev/vuex-tstore#readme",
   "devDependencies": {
-    "@types/jest": "^24.0.18",
-    "@types/node": "^12.7.12",
-    "jest": "^24.9.0",
+    "@types/jest": "^24.9.1",
+    "@types/node": "^12.12.47",
+    "jest": "^26.0.1",
     "prettier": "1.18.2",
-    "ts-jest": "^24.1.0",
-    "tslib": "^1.10.0",
-    "tslint": "^5.20.0",
+    "ts-jest": "^26.1.0",
+    "tslib": "^1.13.0",
+    "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.6.4",
-    "vue": "^2.6.10",
-    "vuex": "^3.1.1"
+    "typescript": "^3.9.5",
+    "vue": "^2.6.11",
+    "vuex": "^3.4.0"
   },
   "peerDependencies": {
     "vue": "^2.6.10",
