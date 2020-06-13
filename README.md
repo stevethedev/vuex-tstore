@@ -94,7 +94,7 @@ declare module 'vue/types/vue' {
 | `store.getters`   | Provides a type-aware proxy to the Vuex Getters.                                                                                                                   |
 | `store.mutations` | Contains a type-aware proxy to the Vuex Mutations. The TStore equivalent to `store.commit("mutate", payload)` is `store.mutations.mutate(payload)`.                |
 | `store.actions`   | Contains a type-aware proxy to the Vuex Actions. The TStore equivalent to `store.dispatch("action", payload)` is `store.actions.action(payload)`.                  |
-| `store.modules`   | Contains the registered modules on the Vuex Store. For example, a getter called `store.getters["foo/bar"]` would now live under `store.mutations.foo.getters.bar`. |
+| `store.modules`   | Contains the registered modules on the Vuex Store. For example, a getter called `store.getters["foo/bar"]` would now live under `store.modules.foo.getters.bar`.   |
 
 ## Event Listeners
 
